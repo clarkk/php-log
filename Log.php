@@ -9,9 +9,13 @@ class Log {
 	const ERR_FATAL_LIMIT 		= 10;
 	const ERR_WARNING_LIMIT 	= 10;
 	
-	const PATH = 'log';
-	
 	const CRLF = "\r\n";
+	
+	static private $path;
+	
+	static public function init(string $path){
+		self::$path = $path;
+	}
 	
 	static public function log(string $message, string $name, int $log_limit_mb=0){
 		self::write($message, $name, false, false, $log_limit_mb);
@@ -35,7 +39,7 @@ class Log {
 	}
 	
 	static private function write(string $message, string $name, bool $is_error=false, bool $write_env=false, int $log_limit_mb=0){
-		$file = self::PATH.'/'.$name.'.'.($is_error ? 'err' : 'log');
+		$file = self::$path.'/'.$name.'.'.($is_error ? 'err' : 'log');
 		
 		//	Strip newlines
 		$message = preg_replace('/ +/', ' ', str_replace("\n", ' ', str_replace("\r", '', $message)));
