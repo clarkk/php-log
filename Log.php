@@ -13,7 +13,7 @@ class Log {
 		self::write($message, $name, false, false, $log_limit_mb);
 	}
 	
-	static public function err(string $message, string $name=self::ERR_FATAL, int $log_limit_mb=0){
+	static public function err(string $message, string $name, int $log_limit_mb=0){
 		self::write($message, $name, true, true, $log_limit_mb);
 	}
 	
