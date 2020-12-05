@@ -3,7 +3,11 @@
 namespace Log;
 
 class Log {
-	const ERR_FATAL = 'fatal';
+	const ERR_FATAL 	= 'fatal';
+	const ERR_WARNING 	= 'warning';
+	
+	const ERR_FATAL_LIMIT 		= 10;
+	const ERR_WARNING_LIMIT 	= 10;
 	
 	const PATH = 'log';
 	
@@ -13,7 +17,20 @@ class Log {
 		self::write($message, $name, false, false, $log_limit_mb);
 	}
 	
-	static public function err(string $message, string $name, int $log_limit_mb=0){
+	static public function err(string $message, string $name){
+		switch($name){
+			case self::ERR_FATAL:
+				$log_limit_mb = self::ERR_FATAL_LIMIT;
+				break;
+			
+			case self::ERR_WARNING:
+				$log_limit_mb = self::ERR_WARNING_LIMIT;
+				break;
+			
+			default:
+				$log_limit_mb = 10;
+		}
+		
 		self::write($message, $name, true, true, $log_limit_mb);
 	}
 	
