@@ -1,46 +1,43 @@
 <?php
 
+namespace Log;
+
 class Log {
-	/*static public function debug_sql(string $message){
-		self::write($message, 'debug_sql_log');
+	const ERR_FATAL = 'fatal';
+	
+	const PATH = 'log';
+	
+	const CRLF = "\r\n";
+	
+	static public function log(string $message, string $name, int $log_limit_mb=0){
+		self::write($message, $name, false, false, $log_limit_mb);
 	}
 	
-	static public function login_error(string $client, string $login, string $pass){
-		self::write("Client: $client; Login: $login; Pass: $pass; IP: ".$_SERVER['REMOTE_ADDR'], 'login', true);
+	static public function err(string $message, string $name=self::ERR_FATAL, int $log_limit_mb=0){
+		self::write($message, $name, true, true, $log_limit_mb);
 	}
 	
-	static public function mail(string $message, bool $is_error=false){
-		self::write($message, 'mail', $is_error, false, 1);
-	}
-	
-	static public function gateway(string $message){
-		self::write($message, 'gateway');
-	}
-	
-	static public function bs(string $message){
-		self::write($message, 'bs');
-	}
-	
-	static public function bs_mandate(string $message){
-		self::write($message, 'bs_mandate');
-	}
-	
-	static public function gateway_error(string $message){
-		self::write("ERROR: $message", 'gateway');
-	}
-	
-	static public function gateway_subscription(string $message){
-		self::write($message, 'gateway_subscription');
-	}
-	
-	static public function write(string $message, string $name, bool $is_error=false, bool $write_env=false, int $log_limit_mb=0, bool $timestamp=true){
-		$file = CWD.'/'.Ini::get('path/log').'/'.$name.'.'.($is_error ? 'err' : 'log');
+	static private function write(string $message, string $name, bool $is_error=false, bool $write_env=false, int $log_limit_mb=0){
+		$file = self::PATH.'/'.$name.'.'.($is_error ? 'err' : 'log');
 		
-		if($log_limit_mb && is_file($file) && $log_limit_mb < filesize($file) / 1024 / 1024){
-			self::rewind($file);
+		//	Strip newlines
+		$message = preg_replace('/ +/', ' ', str_replace("\n", ' ', str_replace("\r", '', $message)));
+		
+		//	Add timestamp
+		$message = date('Y-m-d H:i:s', time()).' '.$message.self::CRLF;
+		
+		if(file_put_contents($file, $message, FILE_APPEND) === false){
+			throw new Error('Could not write to logfile: '.$file);
 		}
 		
-		if($write_env){
+		if($log_limit_mb && is_file($file)){
+			$filesize = filesize($file);
+			if($log_limit_mb < $filesize / 1024 / 1024){
+				self::rewind($file, $filesize);
+			}
+		}
+		
+		/*if($write_env){
 			$message .= '; URL: '.URLPATH;
 			
 			if(!empty($_GET)){
@@ -63,27 +60,12 @@ class Log {
 					$message .= " $key=".(is_array($value) ? '[array]' : $value);
 				}
 			}
-		}
-		
-		$message = str_replace("\n", ' ', str_replace("\r", '', $message));
-		$message = preg_replace('/ +/', ' ', $message);
-		
-		if($timestamp){
-			$message = date('Y-m-d H:i:s', time() + Env::server_time_offset()).' '.$message;
-		}
-		
-		file_put_contents($file, "$message\r\n", FILE_APPEND);
+		}*/
 	}
 	
-	static public function read_log(string $name, bool $is_error=false): Array{
-		$file = Ini::get('path/log').'/'.$name.'.'.($is_error ? 'err' : 'log');
-		
-		return is_file($file) ? array_reverse(file($file)) : [];
-	}
-	
-	static private function rewind(string $file){
-		$handle = fopen($file, 'r+');
-		$content = fread($handle, filesize($file));
+	static private function rewind(string $file, int $filesize){
+		$handle 	= fopen($file, 'r+');
+		$content 	= fread($handle, $filesize);
 		
 		$last = 0;
 		foreach(glob($file.'.*.gz') as $f){
@@ -98,5 +80,7 @@ class Log {
 		
 		ftruncate($handle, 0);
 		fclose($handle);
-	}*/
+	}
 }
+
+class Error extends \Error {}
