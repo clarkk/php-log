@@ -2,6 +2,8 @@
 
 namespace Log;
 
+require_once 'Err.php';
+
 class Log {
 	const ERR_FATAL 	= 'fatal';
 	const ERR_WARNING 	= 'warning';
@@ -103,5 +105,3 @@ class Log {
 		fclose($handle);
 	}
 }
-
-class Error extends \Error {}
