@@ -47,10 +47,10 @@ class Log {
 		$message = preg_replace('/ +/', ' ', str_replace("\n", ' ', str_replace("\r", '', $message)));
 		
 		//	Add timestamp
-		$message = date('Y-m-d H:i:s', time()).' '.$message.self::CRLF;
+		$message = date('Y-m-d H:i:s', time() + (new \DateTimeZone('Europe/Copenhagen'))->getOffset(new \DateTime('now'))).' '.$message.self::CRLF;
 		
 		if(file_put_contents($file, $message, FILE_APPEND) === false){
-			throw new Error('Could not write to logfile: '.$file);
+			throw new \Error('Could not write to logfile');
 		}
 		
 		if($log_limit_mb && is_file($file)){
