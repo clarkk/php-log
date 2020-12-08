@@ -3,13 +3,15 @@
 namespace Log;
 
 class Err extends Log {
-	static public function fatal(\Error $e){
+	static public function fatal(\Error $e): string{
 		$error = self::format($e);
 		if($prev_e = $e->getPrevious()){
 			$error .= "\nPrevious error: ".self::format($prev_e);
 		}
 		
 		self::err($error, self::ERR_FATAL, 1);
+		
+		return $error;
 	}
 	
 	static public function format(\Error $e): string{
