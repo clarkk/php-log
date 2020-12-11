@@ -47,7 +47,8 @@ class Log {
 		$message = preg_replace('/ +/', ' ', str_replace("\n", ' ', str_replace("\r", '', $message)));
 		
 		//	Add timestamp
-		$message = date('Y-m-d H:i:s', time() + (new \DateTimeZone('Europe/Copenhagen'))->getOffset(new \DateTime('now'))).' '.$message.self::CRLF;
+		$local_time = time() + (new \DateTimeZone('Europe/Copenhagen'))->getOffset(new \DateTime('now'));
+		$message = date('Y-m-d H:i:s', $local_time).' '.$message.self::CRLF;
 		
 		if(file_put_contents($file, $message, FILE_APPEND) === false){
 			throw new \Error('Could not write to logfile: '.$file);
