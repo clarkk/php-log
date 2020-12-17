@@ -38,8 +38,12 @@ class Log {
 		self::write($message, $name, true, true, $log_limit_mb);
 	}
 	
+	static public function get_log_file(string $name, bool $is_error=false): string{
+		return self::$path.'/'.$name.'.'.($is_error ? 'err' : 'log');
+	}
+	
 	static private function write(string $message, string $name, bool $is_error=false, bool $write_env=false, int $log_limit_mb=0){
-		$file = self::$path.'/'.$name.'.'.($is_error ? 'err' : 'log');
+		$file = self::get_log_file($name, $is_error);
 		
 		//	Strip newlines
 		$message = preg_replace('/ +/', ' ', str_replace("\n", ' ', str_replace("\r", '', $message)));
