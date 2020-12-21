@@ -3,6 +3,8 @@
 namespace Log;
 
 class Log {
+	const WWW_USER 		= 'www-data';
+	
 	const ERR_FATAL 	= 'fatal';
 	const ERR_WARNING 	= 'warning';
 	
@@ -45,6 +47,8 @@ class Log {
 	static private function write(string $message, string $name, bool $is_error=false, bool $write_env=false, int $log_limit_mb=0){
 		$file = self::get_log_file($name, $is_error);
 		
+		$is_file = is_file($file);
+		
 		//	Strip newlines
 		$message = preg_replace('/ +/', ' ', str_replace("\n", ' ', str_replace("\r", '', $message)));
 		
@@ -54,6 +58,10 @@ class Log {
 		
 		if(file_put_contents($file, $message, FILE_APPEND) === false){
 			throw new \Error('Could not write to logfile: '.$file);
+		}
+		
+		if(!$is_file){
+			chown($file, self::WWW_USER);
 		}
 		
 		if($log_limit_mb && is_file($file)){
