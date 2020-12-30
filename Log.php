@@ -52,6 +52,24 @@ class Log {
 		//	Strip newlines
 		$message = preg_replace('/ +/', ' ', str_replace("\n", ' ', str_replace("\r", '', $message)));
 		
+		if($write_env){
+			if(!empty($_SERVER['REQUEST_URI'])){
+				$message .= '; URI: '.$_SERVER['REQUEST_URI'];
+			}
+			
+			if(!empty($_GET)){
+				$message .= '; GET:'.self::flatten_vars($_GET);
+			}
+			
+			if(!empty($_POST)){
+				$message .= '; POST:'.self::flatten_vars($_POST);
+			}
+			
+			if(!empty($_SESSION)){
+				$message .= '; SESSION:'.self::flatten_vars($_SESSION);
+			}
+		}
+		
 		//	Add timestamp
 		$message = self::timestamp().' '.$message.self::CRLF;
 		
@@ -69,31 +87,6 @@ class Log {
 				self::rewind($file, $filesize);
 			}
 		}
-		
-		/*if($write_env){
-			$message .= '; URL: '.URLPATH;
-			
-			if(!empty($_GET)){
-				$message .= '; GET:';
-				foreach($_GET as $key => $value){
-					$message .= " $key=".(is_array($value) ? '[array]' : $value);
-				}
-			}
-			
-			if(!empty($_POST)){
-				$message .= '; POST:';
-				foreach($_POST as $key => $value){
-					$message .= " $key=".(is_array($value) ? '[array]' : $value);
-				}
-			}
-			
-			if(!empty($_SESSION)){
-				$message .= '; SESSION:';
-				foreach($_SESSION as $key => $value){
-					$message .= " $key=".(is_array($value) ? '[array]' : $value);
-				}
-			}
-		}*/
 	}
 	
 	static private function rewind(string $file, int $filesize){
@@ -113,6 +106,15 @@ class Log {
 		
 		ftruncate($handle, 0);
 		fclose($handle);
+	}
+	
+	static private function flatten_vars(array $vars): string{
+		$output = '';
+		foreach($vars as $key => $value){
+			$output .= " $key=".(is_array($value) ? '[array]' : $value);
+		}
+		
+		return $output;
 	}
 	
 	static private function timestamp(bool $file_name=false): string{
