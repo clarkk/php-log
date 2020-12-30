@@ -41,7 +41,7 @@ class Log {
 	}
 	
 	static public function get_log_file(string $name, bool $is_error=false, bool $timestamp=false): string{
-		return self::$path.'/'.$name.($timestamp ? '_'.self::timestamp(true) : '').'.'.($is_error ? 'err' : 'log');
+		return self::$path.'/'.$name.($timestamp ? '_'.\Time\Time::file_timestamp() : '').'.'.($is_error ? 'err' : 'log');
 	}
 	
 	static private function write(string $message, string $name, bool $is_error=false, bool $write_env=false, int $log_limit_mb=0){
@@ -71,7 +71,7 @@ class Log {
 		}
 		
 		//	Add timestamp
-		$message = self::timestamp().' '.$message.self::CRLF;
+		$message = \Time\Time::timestamp().' '.$message.self::CRLF;
 		
 		if(file_put_contents($file, $message, FILE_APPEND) === false){
 			throw new \Error('Could not write to logfile: '.$file);
@@ -115,11 +115,5 @@ class Log {
 		}
 		
 		return $output;
-	}
-	
-	static private function timestamp(bool $file_name=false): string{
-		$local_time = time() + (new \DateTimeZone('Europe/Copenhagen'))->getOffset(new \DateTime('now'));
-		
-		return date($file_name ? 'Y-m-d_His' : 'Y-m-d H:i:s', $local_time);
 	}
 }
