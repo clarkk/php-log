@@ -44,7 +44,7 @@ class Log {
 		return self::$path.'/'.$name.($timestamp ? '_'.\Time\Time::file_timestamp() : '').'.'.($is_error ? 'err' : 'log');
 	}
 	
-	static private function write(string $message, string $name, bool $is_error=false, bool $write_env=false, int $log_limit_mb=0){
+	static protected function write(string $message, string $name, bool $is_error=false, bool $write_env=false, int $log_limit_mb=0){
 		$file = self::get_log_file($name, $is_error);
 		
 		$is_file = is_file($file);
