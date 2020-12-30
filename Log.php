@@ -23,7 +23,7 @@ class Log {
 		self::write($message, $name, false, false, $log_limit_mb);
 	}
 	
-	static public function err(string $message, string $name){
+	static public function err(string $message, string $name, bool $write_env=true){
 		switch($name){
 			case self::ERR_FATAL:
 				$log_limit_mb = self::ERR_FATAL_LIMIT;
@@ -34,10 +34,10 @@ class Log {
 				break;
 			
 			default:
-				$log_limit_mb = 10;
+				$log_limit_mb = 1;
 		}
 		
-		self::write($message, $name, true, true, $log_limit_mb);
+		self::write($message, $name, true, $write_env, $log_limit_mb);
 	}
 	
 	static public function get_log_file(string $name, bool $is_error=false, bool $timestamp=false): string{
