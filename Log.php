@@ -49,9 +49,6 @@ class Log {
 		
 		$is_file = is_file($file);
 		
-		//	Strip newlines
-		$message = preg_replace('/ +/', ' ', str_replace("\n", ' ', str_replace("\r", '', $message)));
-		
 		if($write_env){
 			if(!empty($_SERVER['REQUEST_URI'])){
 				$message .= '; URI: '.$_SERVER['REQUEST_URI'];
@@ -69,6 +66,9 @@ class Log {
 				$message .= '; SESSION:'.self::flatten_vars($_SESSION);
 			}
 		}
+		
+		//	Strip newlines
+		$message = preg_replace('/ +/', ' ', str_replace("\n", ' ', str_replace("\r", '', $message)));
 		
 		//	Add timestamp
 		$message = \Time\Time::timestamp().' '.$message.self::CRLF;
