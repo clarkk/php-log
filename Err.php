@@ -18,10 +18,3 @@ class Err extends Log {
 		return $e->getMessage().' '.$e->getFile().'('.$e->getLine().")\n".$e->getTraceAsString();
 	}
 }
-
-/*class Fatal extends \Error {
-	public function __construct(string $message, int $code=0, Throwable $previous=null){
-		parent::__construct($message, $code, $previous);
-		Err::fatal($this);
-	}
-}*/
