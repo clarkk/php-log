@@ -11,11 +11,11 @@ class Log {
 	private const ERR_FATAL_LIMIT_MB 	= 10;
 	private const ERR_WARNING_LIMIT_MB 	= 10;
 	
-	private const CRLF = "\r\n";
+	private const CRLF 					= "\r\n";
 	
 	static private $path;
 	
-	static private $num_errors = [];
+	static private $num_errors 			= [];
 	
 	static public function init(string $path){
 		self::$path = $path;
