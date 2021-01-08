@@ -15,6 +15,8 @@ class Log {
 	
 	static private $path;
 	
+	static private $num_errors = [];
+	
 	static public function init(string $path){
 		self::$path = $path;
 	}
@@ -37,7 +39,23 @@ class Log {
 				$log_limit_mb = 1;
 		}
 		
+		if(isset(self::$num_errors[$name])){
+			self::$num_errors[$name]++;
+		}
+		else{
+			self::$num_errors[$name] = 1;
+		}
+		
 		self::write($message, $name, true, $write_env, $log_limit_mb);
+	}
+	
+	static public function get_num_errors(string $name=''): int{
+		if($name){
+			return self::$num_errors[$name] ?? 0;
+		}
+		else{
+			return array_sum(self::$num_errors);
+		}
 	}
 	
 	static public function get_log_file(string $name, bool $is_error=false, bool $timestamp=false): string{
