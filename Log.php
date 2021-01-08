@@ -3,15 +3,15 @@
 namespace Log;
 
 class Log {
-	const WWW_USER 		= 'www-data';
+	public const ERR_FATAL 				= 'fatal';
+	public const ERR_WARNING 			= 'warning';
 	
-	const ERR_FATAL 	= 'fatal';
-	const ERR_WARNING 	= 'warning';
+	private const WWW_USER 				= 'www-data';
 	
-	const ERR_FATAL_LIMIT 		= 10;
-	const ERR_WARNING_LIMIT 	= 10;
+	private const ERR_FATAL_LIMIT_MB 	= 10;
+	private const ERR_WARNING_LIMIT_MB 	= 10;
 	
-	const CRLF = "\r\n";
+	private const CRLF = "\r\n";
 	
 	static private $path;
 	
@@ -26,11 +26,11 @@ class Log {
 	static public function err(string $message, string $name, bool $write_env=true){
 		switch($name){
 			case self::ERR_FATAL:
-				$log_limit_mb = self::ERR_FATAL_LIMIT;
+				$log_limit_mb = self::ERR_FATAL_LIMIT_MB;
 				break;
 			
 			case self::ERR_WARNING:
-				$log_limit_mb = self::ERR_WARNING_LIMIT;
+				$log_limit_mb = self::ERR_WARNING_LIMIT_MB;
 				break;
 			
 			default:
@@ -82,7 +82,9 @@ class Log {
 		}
 		
 		if($log_limit_mb && is_file($file)){
+			clearstatcache(false, $file);
 			$filesize = filesize($file);
+			
 			if($log_limit_mb < $filesize / 1024 / 1024){
 				self::rewind($file, $filesize);
 			}
@@ -93,19 +95,33 @@ class Log {
 		$handle 	= fopen($file, 'r+');
 		$content 	= fread($handle, $filesize);
 		
-		$last = 0;
-		foreach(glob($file.'.*.gz') as $f){
-			$base = substr($f, 0, strrpos($f, '.'));
-			$last = max(substr($base, strrpos($base, '.')+1), $last);
-		}
-		$last++;
-		
-		$gz = gzopen($file.'.'.$last.'.gz', 'w9');
+		$gz = gzopen(self::split_dir($file).'.gz', 'w9');
 		gzwrite($gz, $content);
 		gzclose($gz);
 		
 		ftruncate($handle, 0);
 		fclose($handle);
+	}
+	
+	static private function split_dir(string $file): string{
+		$split_dir 		= $file.'.d';
+		$counter_file 	= $split_dir.'/_last';
+		
+		if(!is_dir($split_dir)){
+			mkdir($split_dir);
+			chown($file, self::WWW_USER);
+			
+			$last = 0;
+		}
+		else{
+			$last = file_get_contents($counter_file);
+		}
+		
+		$last++;
+		
+		file_put_contents($counter_file, $last);
+		
+		return (new \FS\Structure($last, $split_dir))->create(2, self::WWW_USER).'/'.basename($file).'.'.$last;
 	}
 	
 	static private function flatten_vars(array $vars): string{
