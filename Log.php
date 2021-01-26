@@ -21,7 +21,7 @@ class Log {
 		self::$path = $path;
 	}
 	
-	static public function log(string $message, string $name, int $log_limit_mb=0){
+	static public function log(string $message, string $name, int $log_limit_mb=1){
 		self::write($message, $name, false, false, $log_limit_mb);
 	}
 	
