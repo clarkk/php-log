@@ -89,7 +89,7 @@ class Log {
 		$message = preg_replace('/ +/', ' ', str_replace("\n", ' ', str_replace("\r", '', $message)));
 		
 		//	Add timestamp
-		$message = \Time\Time::timestamp().' '.$message.self::CRLF;
+		$message = \Time\Time::timestamp_ms().' '.$message.self::CRLF;
 		
 		if(file_put_contents($file, $message, FILE_APPEND) === false){
 			throw new \Error('Could not write to logfile: '.$file);
