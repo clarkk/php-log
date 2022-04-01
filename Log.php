@@ -127,7 +127,10 @@ class Log {
 		
 		if(!is_dir($split_dir)){
 			mkdir($split_dir);
-			chown($file, self::WWW_USER);
+			chown($split_dir, self::WWW_USER);
+			
+			touch($counter_file);
+			chown($counter_file, self::WWW_USER);
 			
 			$last = 0;
 		}
