@@ -89,16 +89,17 @@ class Log {
 		$message = preg_replace('/ +/', ' ', str_replace("\n", ' ', str_replace("\r", '', $message)));
 		
 		//	Add timestamp
-		$message = \Time\Time::timestamp_ms().' '.$message.self::CRLF;
+		$message = \Time\Time::timestamp_ms().' '.$message;
 		
-		if(file_put_contents($file, $message, FILE_APPEND) === false){
-			throw new \Error('Could not write to logfile: '.$file);
+		if(file_put_contents($file, $message.self::CRLF, FILE_APPEND) === false){
+			throw new Error("Could not write to logfile: $file");
 		}
 		
 		if(!$is_file){
 			chown($file, self::WWW_USER);
 		}
 		
+		//	Do log rotation if log file exceeds limit
 		if($log_limit_mb && is_file($file)){
 			clearstatcache(false, $file);
 			$filesize = filesize($file);
@@ -113,7 +114,7 @@ class Log {
 		$handle 	= fopen($file, 'r+');
 		$content 	= fread($handle, $filesize);
 		
-		$gz = gzopen(self::split_dir($file).'.gz', 'w9');
+		$gz = gzopen(self::rotate($file).'.gz', 'w9');
 		gzwrite($gz, $content);
 		gzclose($gz);
 		
@@ -121,13 +122,13 @@ class Log {
 		fclose($handle);
 	}
 	
-	static private function split_dir(string $file): string{
-		$split_dir 		= $file.'.d';
-		$counter_file 	= $split_dir.'/_last';
+	static private function rotate(string $file): string{
+		$rotation_dir 	= $file.'.d';
+		$counter_file 	= $rotation_dir.'/_last';
 		
-		if(!is_dir($split_dir)){
-			mkdir($split_dir);
-			chown($split_dir, self::WWW_USER);
+		if(!is_dir($rotation_dir)){
+			mkdir($rotation_dir);
+			chown($rotation_dir, self::WWW_USER);
 			
 			touch($counter_file);
 			chown($counter_file, self::WWW_USER);
@@ -142,7 +143,7 @@ class Log {
 		
 		file_put_contents($counter_file, $last);
 		
-		return (new \FS\Structure($last, $split_dir))->create(2, self::WWW_USER).'/'.basename($file).'.'.$last;
+		return $rotation_dir.'/'.basename($file).'.'.$last;
 	}
 	
 	static private function flatten_vars(array $vars): string{
@@ -154,3 +155,5 @@ class Log {
 		return $output;
 	}
 }
+
+class Error extends \Error {}
