@@ -88,62 +88,66 @@ class Log {
 		//	Strip newlines
 		$message = preg_replace('/ +/', ' ', str_replace("\n", ' ', str_replace("\r", '', $message)));
 		
-		//	Add timestamp
-		$message = \Time\Time::timestamp_ms().' '.$message;
-		
-		if(file_put_contents($file, $message.self::CRLF, FILE_APPEND) === false){
-			throw new Error("Could not write to logfile: $file");
-		}
-		
-		if(!$is_file){
-			chown($file, self::WWW_USER);
-		}
+		//	Open file before size check and avoid race condition
+		$f = fopen($file, 'a');
 		
 		//	Do log rotation if log file exceeds limit
-		if($log_limit_mb && is_file($file)){
+		if($log_limit_mb && $is_file){
 			clearstatcache(false, $file);
 			$filesize = filesize($file);
 			
 			if($log_limit_mb < $filesize / 1024 / 1024){
-				self::rewind($file, $filesize);
+				$f = self::rewind($file, $filesize);
 			}
+		}
+		
+		if(!fwrite($f, \Time\Time::timestamp_ms().' '.$message.self::CRLF)){
+			throw new Error("Could not write to logfile: $file");
+		}
+		
+		fclose($f);
+		
+		if(!$is_file){
+			chown($file, self::WWW_USER);
 		}
 	}
 	
 	static private function rewind(string $file, int $filesize){
-		$handle 	= fopen($file, 'r+');
-		$content 	= fread($handle, $filesize);
+		$f 		= fopen($file, 'r+');
+		$data 	= fread($f, $filesize);
 		
 		$gz = gzopen(self::rotate($file).'.gz', 'w9');
-		gzwrite($gz, $content);
+		gzwrite($gz, $data);
 		gzclose($gz);
 		
-		ftruncate($handle, 0);
-		fclose($handle);
+		ftruncate($f, 0);
+		rewind($f);
+		
+		return $f;
 	}
 	
 	static private function rotate(string $file): string{
-		$rotation_dir 	= $file.'.d';
-		$counter_file 	= $rotation_dir.'/_last';
+		$dir 	= $file.'.d';
+		$count 	= $dir.'/_last';
 		
-		if(!is_dir($rotation_dir)){
-			mkdir($rotation_dir);
-			chown($rotation_dir, self::WWW_USER);
+		if(!is_dir($dir)){
+			mkdir($dir);
+			chown($dir, self::WWW_USER);
 			
-			touch($counter_file);
-			chown($counter_file, self::WWW_USER);
+			touch($count);
+			chown($count, self::WWW_USER);
 			
 			$last = 0;
 		}
 		else{
-			$last = file_get_contents($counter_file);
+			$last = file_get_contents($count);
 		}
 		
 		$last++;
 		
-		file_put_contents($counter_file, $last);
+		file_put_contents($count, $last);
 		
-		return $rotation_dir.'/'.basename($file).'.'.$last;
+		return $dir.'/'.basename($file).'.'.$last;
 	}
 	
 	static private function flatten_vars(array $vars): string{
