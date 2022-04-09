@@ -3,7 +3,7 @@ Logging with simple log rotation triggered by a file size limit in MB.
 
 ## Catch error (with trace back)
 ```
-//  Set the base path to store the log files
+//  Set the base path to store log files
 \Log\Log::init('log');
 
 try{
@@ -21,7 +21,7 @@ catch(Error $e){
 
 ## Log
 ```
-//  Set the base path to store the log files
+//  Set the base path to store log files
 \Log\Log::init('log');
 
 //  Log something with log rotation disabled
@@ -42,9 +42,8 @@ catch(Error $e){
 ```
 
 ## Error log
-
 ```
-//  Set the base path to store the log files
+//  Set the base path to store the files
 \Log\Log::init('log');
 
 //  Log an error (By default the error message is extended by environment variables: $_SERVER['REQUEST_URI'], $_POST, $_SESSION)
