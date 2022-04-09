@@ -3,6 +3,9 @@ Logging with simple log rotation triggered by a file size limit in MB.
 
 ## Catch error (with trace back)
 ```
+//  Set the base path to store the log files
+\Log\Log::init('log');
+
 try{
 	throw new Error('Panic!');
 }
@@ -11,7 +14,7 @@ catch(Error $e){
 }
 ```
 
-### Log: fatal.err
+### log/fatal.err:
 ```
 2022-04-09 02:08:22.671 Panic! /var/www/main.php(14) #0 /var/www/main.php(14) #1 {main}
 ```
@@ -31,7 +34,7 @@ catch(Error $e){
 \Log\Log::log('Something is logged with custom log rotation 3MB', 'name-of-log', 3);
 ```
 
-### Log: name-of-log.log
+### log/name-of-log.log:
 ```
 2022-04-09 02:08:19.926 Something is logged with rotation disabled
 2022-04-09 02:08:19.954 Something is logged with default log rotation
@@ -51,12 +54,12 @@ catch(Error $e){
 \Log\Log::err('A fatal error happened!', \Log\Log::ERR_FATAL, false);
 ```
 
-### Log: warning.err
+### log/warning.err:
 ```
 2022-04-09 02:08:21.514 A warning is logged; URI: /path?query; POST: foo=bar; SESSION: id=123 user=test age=25
 ```
 
-### Log: fatal.err
+### log/fatal.err:
 ```
 2022-04-09 02:08:21.664 A fatal error happened!
 ```
