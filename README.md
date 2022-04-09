@@ -92,17 +92,18 @@ log/fatal.err:
 ## Log error
 Error message is extended by environment variables `$_SERVER['REQUEST_URI']`, `$_POST` and `$_SESSION`
 ```
-//  Log an error
 \Log\Log::err('A warning is logged', \Log\Log::ERR_WARNING);
-
-//  Log an error without environment variables
-\Log\Log::err('A fatal error happened!', \Log\Log::ERR_FATAL, false);
 ```
 
 ```
 log/warning.err:
 -------------------------
 2022-04-09 02:08:21.514 A warning is logged; URI: /path?query; POST: foo=bar; SESSION: id=123 user=test age=25
+```
+
+## Log error (withour environment variables)
+```
+\Log\Log::err('A fatal error happened!', \Log\Log::ERR_FATAL, false);
 ```
 
 ```
