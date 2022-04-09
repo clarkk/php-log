@@ -9,10 +9,20 @@ register_shutdown_function(function(){
 	if($error = error_get_last()){
 		switch($error['type']){
 			case E_ERROR:
+			case E_PARSE:
 			case E_CORE_ERROR:
 			case E_COMPILE_ERROR:
 				$message = \Log\Log::trace_format($error['message'], $error['file'], $error['line']);
 				\Log\Log::err($message, \Log\Log::ERR_FATAL);
+				if(\Log\Log::is_verbose()){
+					echo $message;
+				}
+				break;
+			
+			case E_CORE_WARNING:
+			case E_COMPILE_WARNING:
+				$message = \Log\Log::trace_format($error['message'], $error['file'], $error['line']);
+				\Log\Log::err($message, \Log\Log::ERR_WARNING);
 				if(\Log\Log::is_verbose()){
 					echo $message;
 				}
@@ -24,8 +34,9 @@ register_shutdown_function(function(){
 set_error_handler(function(int $errno, string $errstr, string $errfile, int $errline){
 	switch($errno){
 		case E_WARNING:
-		case E_PARSE:
 		case E_NOTICE:
+		case E_STRICT:
+		case E_DEPRECATED:
 			$message = \Log\Log::trace_format($errstr, $errfile, $errline, (new \Error)->getTraceAsString());
 			\Log\Log::err($message, \Log\Log::ERR_WARNING);
 			if(\Log\Log::is_verbose()){
