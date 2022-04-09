@@ -14,7 +14,7 @@ catch(Error $e){
 }
 ```
 
-**log/fatal.err:**
+### log/fatal.err:
 ```
 2022-04-09 02:08:22.671 Panic! /var/www/main.php(14) #0 /var/www/main.php(14) #1 {main}
 ```
@@ -34,7 +34,7 @@ catch(Error $e){
 \Log\Log::log('Something is logged with custom log rotation 3MB', 'name-of-log', 3);
 ```
 
-**log/name-of-log.log:**
+### log/name-of-log.log:
 ```
 2022-04-09 02:08:19.926 Something is logged with rotation disabled
 2022-04-09 02:08:19.954 Something is logged with default log rotation
@@ -47,19 +47,19 @@ catch(Error $e){
 //  Set the base path to store the log files
 \Log\Log::init('log');
 
-//  Log an error (By default the error message is extended with environment variables: $_SERVER['REQUEST_URI'], $_POST, $_SESSION)
+//  Log an error (By default the error message is extended by environment variables: $_SERVER['REQUEST_URI'], $_POST, $_SESSION)
 \Log\Log::err('A warning is logged', \Log\Log::ERR_WARNING);
 
 //  Log an error without environment variables
 \Log\Log::err('A fatal error happened!', \Log\Log::ERR_FATAL, false);
 ```
 
-**log/warning.err:**
+### log/warning.err:
 ```
 2022-04-09 02:08:21.514 A warning is logged; URI: /path?query; POST: foo=bar; SESSION: id=123 user=test age=25
 ```
 
-**log/fatal.err:**
+### log/fatal.err:
 ```
 2022-04-09 02:08:21.664 A fatal error happened!
 ```
