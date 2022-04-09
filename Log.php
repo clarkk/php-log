@@ -2,6 +2,8 @@
 
 namespace Log;
 
+require_once 'Err.php';
+
 error_reporting(E_ALL);
 
 register_shutdown_function(function(){
@@ -45,6 +47,8 @@ class Log {
 	private const ERR_WARNING_LIMIT_MB 	= 10;
 	
 	private const DEFAULT_LIMIT_MB 		= 1;
+	
+	private const DEFAULT_TIMEZONE 		= 'Europe/Copenhagen';
 	
 	private const CRLF 					= "\r\n";
 	
@@ -102,7 +106,7 @@ class Log {
 	}
 	
 	static public function get_log_file(string $name, bool $is_error=false, bool $timestamp=false): string{
-		return self::$path.'/'.$name.($timestamp ? '_'.\Time\Time::file_timestamp() : '').'.'.($is_error ? 'err' : 'log');
+		return self::$path.'/'.$name.($timestamp ? '_'.self::file_timestamp() : '').'.'.($is_error ? 'err' : 'log');
 	}
 	
 	static public function trace_format(string $message, string $file, int $line, string $trace=''): string{
@@ -148,7 +152,7 @@ class Log {
 			}
 		}
 		
-		if(!fwrite($f, \Time\Time::timestamp_ms().' '.$message.self::CRLF)){
+		if(!fwrite($f, self::timestamp().' '.$message.self::CRLF)){
 			throw new Error("Could not write to logfile: $file");
 		}
 		
@@ -204,6 +208,18 @@ class Log {
 		}
 		
 		return $output;
+	}
+	
+	static private function file_timestamp(): string{
+		return date('Y-m-d-His', self::time_local());
+	}
+	
+	static private function timestamp(): string{
+		return date('Y-m-d H:i:s'.substr((string)microtime(), 1, 4), self::time_local());
+	}
+	
+	static private function time_local(): int{
+		return time() + (new \DateTimeZone(self::DEFAULT_TIMEZONE))->getOffset(new \DateTime('now'));
 	}
 }
 
