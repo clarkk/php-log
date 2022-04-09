@@ -2,18 +2,24 @@
 
 namespace Log;
 
+error_reporting(E_ALL);
+
 class Log {
 	public const ERR_FATAL 				= 'fatal';
 	public const ERR_WARNING 			= 'warning';
 	
+	//	Force ownership on files/dirs to www-data if script is running as root (cronjobs etc.) to avoid ownership is getting mixed
 	private const WWW_USER 				= 'www-data';
 	
 	private const ERR_FATAL_LIMIT_MB 	= 10;
 	private const ERR_WARNING_LIMIT_MB 	= 10;
 	
+	private const DEFAULT_LIMIT_MB 		= 1;
+	
 	private const CRLF 					= "\r\n";
 	
 	static private $path;
+	static private $verbose 			= false;
 	
 	static private $num_errors 			= [];
 	
@@ -21,30 +27,36 @@ class Log {
 		self::$path = $path;
 	}
 	
-	static public function log(string $message, string $name, int $log_limit_mb=1){
+	static public function verbose(){
+		self::$verbose = true;
+	}
+	
+	static public function is_verbose(): bool{
+		return self::$verbose;
+	}
+	
+	static public function log(string $message, string $name, int $log_limit_mb=self::DEFAULT_LIMIT_MB){
 		self::write($message, $name, false, false, $log_limit_mb);
 	}
 	
 	static public function err(string $message, string $name, bool $write_env=true){
 		switch($name){
 			case self::ERR_FATAL:
-				$log_limit_mb = self::ERR_FATAL_LIMIT_MB;
+				$log_limit_mb 	= self::ERR_FATAL_LIMIT_MB;
 				break;
 			
 			case self::ERR_WARNING:
-				$log_limit_mb = self::ERR_WARNING_LIMIT_MB;
+				$log_limit_mb 	= self::ERR_WARNING_LIMIT_MB;
 				break;
 			
 			default:
-				$log_limit_mb = 1;
+				$log_limit_mb 	= self::DEFAULT_LIMIT_MB;
 		}
 		
-		if(isset(self::$num_errors[$name])){
-			self::$num_errors[$name]++;
+		if(!isset(self::$num_errors[$name])){
+			self::$num_errors[$name] = 0;
 		}
-		else{
-			self::$num_errors[$name] = 1;
-		}
+		self::$num_errors[$name]++;
 		
 		self::write($message, $name, true, $write_env, $log_limit_mb);
 	}
@@ -53,9 +65,8 @@ class Log {
 		if($name){
 			return self::$num_errors[$name] ?? 0;
 		}
-		else{
-			return array_sum(self::$num_errors);
-		}
+		
+		return array_sum(self::$num_errors);
 	}
 	
 	static public function get_log_file(string $name, bool $is_error=false, bool $timestamp=false): string{
