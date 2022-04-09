@@ -27,8 +27,10 @@ class Log {
 		self::$path = $path;
 	}
 	
+	//	Print warnings and errors
 	static public function verbose(){
 		self::$verbose = true;
+		ini_set('display_errors', true);
 	}
 	
 	static public function is_verbose(): bool{
