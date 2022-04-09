@@ -71,6 +71,7 @@ catch(Throwable $e){
 ```
 
 ## Log error (with stack trace)
+Error message is extended by environment variables `$_SERVER['REQUEST_URI']`, `$_POST` and `$_SESSION`
 ```
 try{
 	throw new Error('Panic!');
@@ -85,12 +86,13 @@ log/fatal.err:
 -------------------------
 2022-04-09 02:08:22.671 Panic! /var/php/cronjob/test.php(7)
 #0 /var/php/test/Test.php(18): test()
-#1 {main}
+#1 {main}; URI: /path?query; POST: foo=bar; SESSION: id=123 user=test age=25
 ```
 
 ## Log error
+Error message is extended by environment variables `$_SERVER['REQUEST_URI']`, `$_POST` and `$_SESSION`
 ```
-//  Log an error (By default the error message is extended by environment variables: $_SERVER['REQUEST_URI'], $_POST, $_SESSION)
+//  Log an error
 \Log\Log::err('A warning is logged', \Log\Log::ERR_WARNING);
 
 //  Log an error without environment variables
