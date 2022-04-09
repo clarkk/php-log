@@ -64,7 +64,7 @@ log/fatal.err:
 ```
 
 ## Log rotation
-By default log rotation is set to 1 MB on logging with `\Log\Log::log('log message', 'name-of-log')`, and the archived log files is encoded with `gz`
+By default log rotation is set to 1 MB on logging with `\Log\Log::log('log message', 'name-of-log')`, and the archived log files are encoded with `gz`
 
 ### File structure
 ```
