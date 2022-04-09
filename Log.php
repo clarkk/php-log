@@ -88,7 +88,7 @@ class Log {
 		//	Strip newlines
 		$message = preg_replace('/ +/', ' ', str_replace("\n", ' ', str_replace("\r", '', $message)));
 		
-		//	Open file before size check and avoid race condition
+		//	Open file before size check to avoid race condition
 		$f = fopen($file, 'a');
 		
 		//	Do log rotation if log file exceeds limit
