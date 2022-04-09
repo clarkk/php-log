@@ -1,9 +1,22 @@
 # php-log
-Logging with simple log rotation triggered by a limit in MB.
+Logging with simple log rotation triggered by a file size limit in MB.
+
+## Catch error (with trace back)
+```
+try{
+	throw new Error('Panic!');
+}
+catch(Error $e){
+	\Log\Err::fatal($e);
+}
+```
+
+### Log: fatal.err
+```
+2022-04-09 02:08:22.671 Panic! /var/www/main.php(14) #0 /var/www/main.php(14) #1 {main}
+```
 
 ## Log
-
-### Code example
 ```
 //  Set the base path to store the log files
 \Log\Log::init('log');
@@ -27,12 +40,11 @@ Logging with simple log rotation triggered by a limit in MB.
 
 ## Error log
 
-### Code example
 ```
 //  Set the base path to store the log files
 \Log\Log::init('log');
 
-//  Log an error (By default the error message is extended with environment variables: $_SERVER['REQUEST_URI'], $_GET, $_POST, $_SESSION)
+//  Log an error (By default the error message is extended with environment variables: $_SERVER['REQUEST_URI'], $_POST, $_SESSION)
 \Log\Log::err('A warning is logged', \Log\Log::ERR_WARNING);
 
 //  Log an error without environment variables
