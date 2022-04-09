@@ -1,11 +1,26 @@
 # php-log
 Logging with simple log rotation triggered by a file size limit in MB.
 
+## Use case
+Wrap all your code inside a `try..catch` block and all uncatched errors will be catched and logged
+```
+<?php
+
+try{
+	require_once 'Log.php';
+	
+	//  Set the base path to store log files
+	\Log\Log::init('log');
+	
+	...
+}
+catch(Throwable $e){
+	\Log\Err::catch_all($e);
+}
+```
+
 ## Catch error (with trace back)
 ```
-//  Set the base path to store log files
-\Log\Log::init('log');
-
 try{
 	throw new Error('Panic!');
 }
@@ -16,14 +31,16 @@ catch(Error $e){
 
 ```
 log/fatal.err:
-2022-04-09 02:08:22.671 Panic! /var/www/main.php(14) #0 /var/www/main.php(14) #1 {main}
+2022-04-09 02:08:22.671 Panic! /var/php/cronjob/test.php(7)
+#0 /var/php/repo/utils/cronjob/Task.php(18): Utils\Cronjob\Test->exec()
+#1 /var/php/repo/utils/cronjob/Cronjob.php(224): Utils\Cronjob\Task->__construct()
+#2 /var/php/repo/utils/cronjob/Cronjob.php(124): Utils\Cronjob\Cronjob->exec()
+#3 /var/php/cronjob.php(66): Utils\Cronjob\Cronjob->init()
+#4 {main}
 ```
 
 ## Log
 ```
-//  Set the base path to store log files
-\Log\Log::init('log');
-
 //  Log something with log rotation disabled
 \Log\Log::log('Something is logged with rotation disabled', 'name-of-log', 0);
 
@@ -43,9 +60,6 @@ log/name-of-log.log:
 
 ## Error log
 ```
-//  Set the base path to store the files
-\Log\Log::init('log');
-
 //  Log an error (By default the error message is extended by environment variables: $_SERVER['REQUEST_URI'], $_POST, $_SESSION)
 \Log\Log::err('A warning is logged', \Log\Log::ERR_WARNING);
 
