@@ -31,16 +31,19 @@ try{
 	//  Set the base path to store log files
 	\Log\Log::init('log');
 	
-	//  PHP core and compiler errors and PHP warnings and parse errors will be visible (Do not enable this in production!)
+	//  PHP core and compiler errors and PHP warnings and parse errors will be visible
+	//  (Do not enable this in production!)
 	\Log\Log::verbose();
 	
 	//  Log something
 	\Log\Log::log('User event: A user did something and I want to log it', 'user-event');
 	
-	//  Log an unharmful warning (this will NOT be visible to the user even if verbose is enabled)
+	//  Log an unharmful warning
+	//  (This will NOT be visible to the user even if verbose is enabled)
 	\Log\Log::err('A warning is logged', \Log\Log::ERR_WARNING);
 	
-	//  Log a fatal error (this will NOT be visible to the user even if verbose is enabled)
+	//  Log a fatal error
+	//  (This will NOT be visible to the user even if verbose is enabled)
 	\Log\Log::err('This might cause some damage', \Log\Log::ERR_FATAL);
 	
 	try{
@@ -49,12 +52,14 @@ try{
 		echo "Everything went OK!"
 	}
 	catch(Error $e){
-		//  The fatal error is logged with a trace back (this will NOT be visible to the user even if verbose is enabled)
+		//  The fatal error is logged with a trace back
+		//  (This will NOT be visible to the user even if verbose is enabled)
 		\Log\Err::fatal($e);
 	}
 }
 catch(Throwable $e){
-	//  This will catch all uncatched and unexpected errors. The error will be visible to the user if verbose is enabled
+	//  This will catch all uncatched and unexpected errors
+	//  (The error will be visible to the user if verbose is enabled)
 	\Log\Err::catch_all($e);
 }
 ```
