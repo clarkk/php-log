@@ -138,7 +138,6 @@ By default log rotation is set to 1 MB on logging by `\Log\Log::log('log message
 ### File structure
 ```
 log/name-of-log.log
--------------------------
 log/name-of-log.d/name-of-log.1.gz
 log/name-of-log.d/name-of-log.2.gz
 log/name-of-log.d/name-of-log.3.gz
