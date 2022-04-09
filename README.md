@@ -1,8 +1,8 @@
 # php-log
 Logging with simple log rotation triggered by a file size limit.
 - Log rotation (Default 1 MB for `.log` files and 10 MB for `.err` files)
-- All fatal core and compiler/syntax errors are automatically logged (even if PHP can't execute the script)
-- All warnings, notice and parse errors are automatically logged
+- All fatal errors and core/compiler/parse errors are automatically logged (even if PHP can't execute the script)
+- All warnings, notice etc. are automatically logged
 
 ### php.ini (production)
 ```
@@ -59,7 +59,7 @@ try{
 }
 //  Catch all uncatched and unexpected errors
 catch(Throwable $e){
-	//  Always try to return some kind of useful HTML/JSON response to the user if possible
+	//  Always try to return a generic HTTP error with useful HTML/JSON response to the user if possible
 	if(isset($API)){
 		$API->error_response($e);
 	}
