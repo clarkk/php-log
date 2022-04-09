@@ -15,6 +15,6 @@ class Err extends Log {
 	}
 	
 	static public function format(\Throwable $e): string{
-		return $e->getMessage().' '.$e->getFile().'('.$e->getLine().")\n".$e->getTraceAsString();
+		return self::trace_format($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString());
 	}
 }

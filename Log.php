@@ -4,6 +4,36 @@ namespace Log;
 
 error_reporting(E_ALL);
 
+register_shutdown_function(function(){
+	if($error = error_get_last()){
+		switch($error['type']){
+			case E_ERROR:
+			case E_CORE_ERROR:
+			case E_COMPILE_ERROR:
+				$message = \Log\Log::trace_format($error['message'], $error['file'], $error['line']);
+				\Log\Log::err($message, \Log\Log::ERR_FATAL);
+				if(\Log\Log::is_verbose()){
+					echo $message;
+				}
+				break;
+		}
+	}
+});
+
+set_error_handler(function(int $errno, string $errstr, string $errfile, int $errline){
+	switch($errno){
+		case E_WARNING:
+		case E_PARSE:
+		case E_NOTICE:
+			$message = \Log\Log::trace_format($errstr, $errfile, $errline, (new \Error)->getTraceAsString());
+			\Log\Log::err($message, \Log\Log::ERR_WARNING);
+			if(\Log\Log::is_verbose()){
+				echo $message;
+			}
+			break;
+	}
+});
+
 class Log {
 	public const ERR_FATAL 				= 'fatal';
 	public const ERR_WARNING 			= 'warning';
@@ -73,6 +103,10 @@ class Log {
 	
 	static public function get_log_file(string $name, bool $is_error=false, bool $timestamp=false): string{
 		return self::$path.'/'.$name.($timestamp ? '_'.\Time\Time::file_timestamp() : '').'.'.($is_error ? 'err' : 'log');
+	}
+	
+	static public function trace_format(string $message, string $file, int $line, string $trace=''): string{
+		return "$message $file($line)".($trace ? "\n$trace" : '');
 	}
 	
 	static private function write(string $message, string $name, bool $is_error=false, bool $write_env=false, int $log_limit_mb=0){
