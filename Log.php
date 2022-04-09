@@ -69,14 +69,15 @@ class Log {
 	
 	static private $num_errors 			= [];
 	
-	static public function init(string $path){
+	static public function init(string $path, bool $verbose=false){
 		self::$path = $path;
+		self::verbose($verbose);
 	}
 	
 	//	Print warnings and errors
-	static public function verbose(){
-		self::$verbose = true;
-		ini_set('display_errors', true);
+	static public function verbose(bool $verbose=true){
+		self::$verbose = $verbose;
+		ini_set('display_errors', $verbose);
 	}
 	
 	static public function is_verbose(): bool{
