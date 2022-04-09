@@ -2,9 +2,9 @@
 
 namespace Log;
 
-require_once 'Err.php';
-
 error_reporting(E_ALL);
+
+require_once 'Err.php';
 
 register_shutdown_function(function(){
 	if($error = error_get_last()){
