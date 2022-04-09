@@ -63,6 +63,10 @@ class Log {
 	}
 	
 	static private function write(string $message, string $name, bool $is_error=false, bool $write_env=false, int $log_limit_mb=0){
+		if(!self::$path){
+			throw new Error('Log base path is not set');
+		}
+		
 		$file = self::get_log_file($name, $is_error);
 		
 		$is_file = is_file($file);
@@ -70,10 +74,6 @@ class Log {
 		if($write_env){
 			if(!empty($_SERVER['REQUEST_URI'])){
 				$message .= '; URI: '.$_SERVER['REQUEST_URI'];
-			}
-			
-			if(!empty($_GET)){
-				$message .= '; GET:'.self::flatten_vars($_GET);
 			}
 			
 			if(!empty($_POST)){
@@ -152,7 +152,7 @@ class Log {
 	
 	static private function flatten_vars(array $vars): string{
 		$output = '';
-		foreach($vars as $key => $value){
+		foreach($vars as $key => &$value){
 			$output .= " $key=".(is_array($value) ? '[array]' : $value);
 		}
 		
