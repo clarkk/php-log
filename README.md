@@ -59,7 +59,7 @@ try{
 }
 //  Catch all uncatched and unexpected errors
 catch(Throwable $e){
-	//  Always try to return a generic HTTP error with useful HTML/JSON response to the user if possible
+	//  Always try to return a generic HTTP error code with useful HTML/JSON response if possible
 	if(isset($API)){
 		$API->error_response($e);
 	}
@@ -70,7 +70,7 @@ catch(Throwable $e){
 }
 ```
 
-## Catch error (with trace back)
+## Log error (with stack trace)
 ```
 try{
 	throw new Error('Panic!');
@@ -82,9 +82,31 @@ catch(Error $e){
 
 ```
 log/fatal.err:
+-------------------------
 2022-04-09 02:08:22.671 Panic! /var/php/cronjob/test.php(7)
 #0 /var/php/test/Test.php(18): test()
 #1 {main}
+```
+
+## Log error
+```
+//  Log an error (By default the error message is extended by environment variables: $_SERVER['REQUEST_URI'], $_POST, $_SESSION)
+\Log\Log::err('A warning is logged', \Log\Log::ERR_WARNING);
+
+//  Log an error without environment variables
+\Log\Log::err('A fatal error happened!', \Log\Log::ERR_FATAL, false);
+```
+
+```
+log/warning.err:
+-------------------------
+2022-04-09 02:08:21.514 A warning is logged; URI: /path?query; POST: foo=bar; SESSION: id=123 user=test age=25
+```
+
+```
+log/fatal.err:
+-------------------------
+2022-04-09 02:08:21.664 A fatal error happened!
 ```
 
 ## Log
@@ -101,28 +123,10 @@ log/fatal.err:
 
 ```
 log/name-of-log.log:
+-------------------------
 2022-04-09 02:08:19.926 Something is logged with rotation disabled
 2022-04-09 02:08:19.954 Something is logged with default log rotation
 2022-04-09 02:08:20.109 Something is logged with custom log rotation 3MB
-```
-
-## Error log
-```
-//  Log an error (By default the error message is extended by environment variables: $_SERVER['REQUEST_URI'], $_POST, $_SESSION)
-\Log\Log::err('A warning is logged', \Log\Log::ERR_WARNING);
-
-//  Log an error without environment variables
-\Log\Log::err('A fatal error happened!', \Log\Log::ERR_FATAL, false);
-```
-
-```
-log/warning.err:
-2022-04-09 02:08:21.514 A warning is logged; URI: /path?query; POST: foo=bar; SESSION: id=123 user=test age=25
-```
-
-```
-log/fatal.err:
-2022-04-09 02:08:21.664 A fatal error happened!
 ```
 
 ## Log rotation
@@ -131,6 +135,7 @@ By default log rotation is set to 1 MB on logging by `\Log\Log::log('log message
 ### File structure
 ```
 log/name-of-log.log
+-------------------------
 log/name-of-log.d/name-of-log.1.gz
 log/name-of-log.d/name-of-log.2.gz
 log/name-of-log.d/name-of-log.3.gz
