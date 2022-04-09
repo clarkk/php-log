@@ -1,27 +1,27 @@
 # php-log
 Logging with simple log rotation triggered by a file size limit.
 - Log rotation (Default 1 MB for `.log` files and 10 MB for `.err` files)
-- All fatal core and compiler errors are automatically logged (even if the PHP script can't execute) to `fatal.err` via `\Log\Log::err('Error message', \Log\Log::ERR_FATAL)`
-- All warnings, notice and parse errors are automatically logged to `warning.err` via `\Log\Log::err('Error message', \Log\Log::ERR_WARNING)`
+- All fatal core and compiler errors are automatically logged (even if PHP script can't execute)
+- All warnings, notice and parse errors are automatically logged
 
 ### php.ini (production)
 ```
-error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
-display_errors = Off
-display_startup_errors = Off
+error_reporting         = E_ALL & ~E_DEPRECATED & ~E_STRICT
+display_errors          = Off
+display_startup_errors  = Off
 ```
 
 ### php.ini (dev/test)
 ```
-error_reporting = E_ALL
-display_errors = On
-display_startup_errors = On
+error_reporting         = E_ALL
+display_errors          = On
+display_startup_errors  = On
 ```
 
-## Use case
+## How to use
 Wrap all your code inside a `try..catch` block and all uncatched errors will be catched and logged.
 
-Note: It's important that Log is initiated as the first thing in your scripts
+**Note**: It's important that `Log::init()` is initiated as the first thing in your scripts
 ```
 <?php
 
@@ -31,19 +31,30 @@ try{
 	//  Set the base path to store log files
 	\Log\Log::init('log');
 	
-	//  Errors will also be printed (Do not enable this in production)
+	//  PHP core and compiler errors and PHP warnings and parse errors will be visible (Do not enable this in production!)
 	\Log\Log::verbose();
 	
+	//  Log something
+	\Log\Log::log('User event: A user did something and I want to log it', 'user-event');
+	
+	//  Log an unharmful warning (this will NOT be visible to the user even if verbose is enabled)
+	\Log\Log::err('A warning is logged', \Log\Log::ERR_WARNING);
+	
+	//  Log a fatal error (this will NOT be visible to the user even if verbose is enabled)
+	\Log\Log::err('This might cause some damage', \Log\Log::ERR_FATAL);
+	
 	try{
-		throw new Error('Something went wrong');
+		throw new Error('Something went terrible wrong');
 		
 		echo "Everything went OK!"
 	}
 	catch(Error $e){
+		//  The fatal error is logged with a trace back (this will NOT be visible to the user even if verbose is enabled)
 		\Log\Err::fatal($e);
 	}
 }
 catch(Throwable $e){
+	//  This will catch all uncatched and unexpected errors. The error will be visible to the user if verbose is enabled
 	\Log\Err::catch_all($e);
 }
 ```
@@ -61,11 +72,8 @@ catch(Error $e){
 ```
 log/fatal.err:
 2022-04-09 02:08:22.671 Panic! /var/php/cronjob/test.php(7)
-#0 /var/php/repo/utils/cronjob/Task.php(18): Utils\Cronjob\Test->exec()
-#1 /var/php/repo/utils/cronjob/Cronjob.php(224): Utils\Cronjob\Task->__construct()
-#2 /var/php/repo/utils/cronjob/Cronjob.php(124): Utils\Cronjob\Cronjob->exec()
-#3 /var/php/cronjob.php(66): Utils\Cronjob\Cronjob->init()
-#4 {main}
+#0 /var/php/test/Test.php(18): test()
+#1 {main}
 ```
 
 ## Log
@@ -107,7 +115,7 @@ log/fatal.err:
 ```
 
 ## Log rotation
-By default log rotation is set to 1 MB on logging with `\Log\Log::log('log message', 'name-of-log')`, and the archived log files are encoded with `gz`
+By default log rotation is set to 1 MB on logging by `\Log\Log::log('log message', 'name-of-log')`, and the archived log files are encoded with `gz`
 
 ### File structure
 ```
