@@ -4,8 +4,6 @@ namespace Log;
 
 error_reporting(E_ALL);
 
-require_once 'Err.php';
-
 register_shutdown_function(function(){
 	if($error = error_get_last()){
 		switch($error['type']){
@@ -35,6 +33,8 @@ set_error_handler(function(int $errno, string $errstr, string $errfile, int $err
 			break;
 	}
 });
+
+require_once 'Err.php';
 
 class Log {
 	public const ERR_FATAL 				= 'fatal';
