@@ -3,6 +3,7 @@
 namespace Log;
 
 error_reporting(E_ALL);
+date_default_timezone_set('UTC');
 
 register_shutdown_function(function(){
 	if($error = error_get_last()){

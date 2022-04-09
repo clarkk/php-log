@@ -1,8 +1,27 @@
 # php-log
-Logging with simple log rotation triggered by a file size limit in MB.
+Logging with simple log rotation triggered by a file size limit.
+- Log rotation (Default 1 MB for `.log` files and 10 MB for `.err` files)
+- All fatal core and compiler errors are automatically logged (even if the PHP script can't execute) to `fatal.err` via `\Log\Log::err('Error message', \Log\Log::ERR_FATAL)`
+- All warnings, notice and parse errors are automatically logged to `warning.err` via `\Log\Log::err('Error message', \Log\Log::ERR_WARNING)`
+
+### php.ini (production)
+```
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
+display_errors = Off
+display_startup_errors = Off
+```
+
+### php.ini (dev/test)
+```
+error_reporting = E_ALL
+display_errors = On
+display_startup_errors = On
+```
 
 ## Use case
-Wrap all your code inside a `try..catch` block and all uncatched errors will be catched and logged
+Wrap all your code inside a `try..catch` block and all uncatched errors will be catched and logged.
+
+Note: It's important that Log is initiated as the first thing in your scripts
 ```
 <?php
 
@@ -12,7 +31,17 @@ try{
 	//  Set the base path to store log files
 	\Log\Log::init('log');
 	
-	...
+	//  Errors will also be printed (Do not enable this in production)
+	\Log\Log::verbose();
+	
+	try{
+		throw new Error('Something went wrong');
+		
+		echo "Everything went OK!"
+	}
+	catch(Error $e){
+		\Log\Err::fatal($e);
+	}
 }
 catch(Throwable $e){
 	\Log\Err::catch_all($e);
