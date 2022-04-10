@@ -35,7 +35,7 @@ set_error_handler(function(int $errno, string $errstr, string $errfile, int $err
 	switch($errno){
 		case E_WARNING:
 		case E_NOTICE:
-		case E_STRICT:
+		//case E_STRICT:
 		case E_DEPRECATED:
 			$message = \Log\Log::trace_format($errstr, $errfile, $errline, (new \Error)->getTraceAsString());
 			\Log\Log::err(\Log\Log::ERR_WARNING, $message);
