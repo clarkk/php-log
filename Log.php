@@ -13,7 +13,7 @@ register_shutdown_function(function(){
 			case E_CORE_ERROR:
 			case E_COMPILE_ERROR:
 				$message = \Log\Log::trace_format($error['message'], $error['file'], $error['line']);
-				\Log\Log::err($message, \Log\Log::ERR_FATAL);
+				\Log\Log::err(\Log\Log::ERR_FATAL, $message);
 				if(\Log\Log::is_verbose()){
 					echo $message;
 				}
@@ -22,7 +22,7 @@ register_shutdown_function(function(){
 			case E_CORE_WARNING:
 			case E_COMPILE_WARNING:
 				$message = \Log\Log::trace_format($error['message'], $error['file'], $error['line']);
-				\Log\Log::err($message, \Log\Log::ERR_WARNING);
+				\Log\Log::err(\Log\Log::ERR_WARNING, $message);
 				if(\Log\Log::is_verbose()){
 					echo $message;
 				}
@@ -38,7 +38,7 @@ set_error_handler(function(int $errno, string $errstr, string $errfile, int $err
 		case E_STRICT:
 		case E_DEPRECATED:
 			$message = \Log\Log::trace_format($errstr, $errfile, $errline, (new \Error)->getTraceAsString());
-			\Log\Log::err($message, \Log\Log::ERR_WARNING);
+			\Log\Log::err(\Log\Log::ERR_WARNING, $message);
 			if(\Log\Log::is_verbose()){
 				echo $message;
 			}
@@ -84,11 +84,11 @@ class Log {
 		return self::$verbose;
 	}
 	
-	static public function log(string $message, string $name, int $log_limit_mb=self::DEFAULT_LIMIT_MB){
-		self::write($message, $name, false, false, $log_limit_mb);
+	static public function log(string $name, string $message, int $log_limit_mb=self::DEFAULT_LIMIT_MB){
+		self::write($name, $message, false, false, $log_limit_mb);
 	}
 	
-	static public function err(string $message, string $name, bool $write_env=true){
+	static public function err(string $name, string $message, bool $write_env=true){
 		switch($name){
 			case self::ERR_FATAL:
 				$log_limit_mb 	= self::ERR_FATAL_LIMIT_MB;
@@ -107,7 +107,7 @@ class Log {
 		}
 		self::$num_errors[$name]++;
 		
-		self::write($message, $name, true, $write_env, $log_limit_mb);
+		self::write($name, $message, true, $write_env, $log_limit_mb);
 	}
 	
 	static public function get_num_errors(string $name=''): int{
@@ -126,7 +126,7 @@ class Log {
 		return "$message $file($line)".($trace ? "\n$trace" : '');
 	}
 	
-	static private function write(string $message, string $name, bool $is_error=false, bool $write_env=false, int $log_limit_mb=0){
+	static private function write(string $name, string $message, bool $is_error=false, bool $write_env=false, int $log_limit_mb=0){
 		if(!self::$path){
 			throw new Error('Log base path is not set');
 		}

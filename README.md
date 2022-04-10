@@ -36,15 +36,15 @@ try{
 	\Log\Log::verbose();
 	
 	//  Log something
-	\Log\Log::log('User event: A user did something and I want to log it', 'user-event');
+	\Log\Log::log('user-event', 'User event: A user did something and I want to log it');
 	
 	//  Log a warning
 	//  (This will NOT be visible to the user even if verbose is enabled)
-	\Log\Log::err('A warning is logged', \Log\Log::ERR_WARNING);
+	\Log\Log::err(\Log\Log::ERR_WARNING, 'A warning is logged');
 	
 	//  Log a fatal error
 	//  (This will NOT be visible to the user even if verbose is enabled)
-	\Log\Log::err('This might cause some damage', \Log\Log::ERR_FATAL);
+	\Log\Log::err(\Log\Log::ERR_FATAL, 'This might cause some damage');
 	
 	try{
 		throw new Error('Something went terrible wrong');
@@ -61,6 +61,7 @@ try{
 catch(Throwable $e){
 	//  Always try to return a generic HTTP error code with useful HTML/JSON response if possible
 	if(isset($API)){
+		\Log\Err::fatal($e);
 		$API->error_response($e);
 	}
 	//  Fallback if nothing has yet been initialized
@@ -92,7 +93,7 @@ log/fatal.err:
 ## Log error
 Error message is extended by environment variables `$_SERVER['REQUEST_URI']`, `$_POST` and `$_SESSION`
 ```
-\Log\Log::err('A warning is logged', \Log\Log::ERR_WARNING);
+\Log\Log::err(\Log\Log::ERR_WARNING, 'A warning is logged');
 ```
 
 ```
@@ -101,9 +102,9 @@ log/warning.err:
 2022-04-09 02:08:21.514 A warning is logged; URI: /path?query; POST: foo=bar; SESSION: id=123 user=test age=25
 ```
 
-## Log error (withour environment variables)
+## Log error (without environment variables)
 ```
-\Log\Log::err('A fatal error happened!', \Log\Log::ERR_FATAL, false);
+\Log\Log::err(\Log\Log::ERR_FATAL, 'A fatal error happened!', false);
 ```
 
 ```
@@ -115,13 +116,13 @@ log/fatal.err:
 ## Log
 ```
 //  Log something with log rotation disabled
-\Log\Log::log('Something is logged with rotation disabled', 'name-of-log', 0);
+\Log\Log::log('name-of-log', 'Something is logged with rotation disabled', 0);
 
 //  Log something with log rotation (default limit 1 MB)
-\Log\Log::log('Something is logged with default log rotation', 'name-of-log');
+\Log\Log::log('name-of-log', 'Something is logged with default log rotation');
 
 //  Log something with log rotation limit 3 MB
-\Log\Log::log('Something is logged with custom log rotation 3MB', 'name-of-log', 3);
+\Log\Log::log('name-of-log', 'Something is logged with custom log rotation 3MB', 3);
 ```
 
 ```
@@ -133,7 +134,7 @@ log/name-of-log.log:
 ```
 
 ## Log rotation
-By default log rotation is set to 1 MB on logging by `\Log\Log::log('log message', 'name-of-log')`, and the archived log files are encoded with `gz`
+By default log rotation is set to 1 MB on logging by `\Log\Log::log('name-of-log', 'log message')`, and the archived log files are encoded with `gz`
 
 ### File structure
 ```

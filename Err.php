@@ -9,7 +9,7 @@ class Err extends Log {
 			$error .= "\nPrevious error: ".self::format($prev_e);
 		}
 		
-		self::err($error, self::ERR_FATAL);
+		self::err(self::ERR_FATAL, $error);
 		
 		return $error;
 	}
