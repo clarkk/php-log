@@ -2,17 +2,22 @@
 
 namespace Log;
 
-error_reporting(E_ALL);
+/*
+ *	Default timezone (when retrieving UNIX timestamps, storing in the database and sending to the browser) must at any time by UTC.
+ *	Javascript expects UNIX timestamps to be UTC and will automatically apply user timezone.
+ *	If your application handles time by a different timezone, Javascript will show the user an incorrect time/date in the browser.
+ */
 date_default_timezone_set('UTC');
+error_reporting(E_ALL);
 
 register_shutdown_function(function(){
 	if($error = error_get_last()){
+		$message = \Log\Log::trace_format($error['message'], $error['file'], $error['line']);
 		switch($error['type']){
 			case E_ERROR:
 			case E_PARSE:
 			case E_CORE_ERROR:
 			case E_COMPILE_ERROR:
-				$message = \Log\Log::trace_format($error['message'], $error['file'], $error['line']);
 				\Log\Log::err(\Log\Log::ERR_FATAL, $message);
 				if(\Log\Log::is_verbose()){
 					echo $message;
@@ -21,7 +26,6 @@ register_shutdown_function(function(){
 			
 			case E_CORE_WARNING:
 			case E_COMPILE_WARNING:
-				$message = \Log\Log::trace_format($error['message'], $error['file'], $error['line']);
 				\Log\Log::err(\Log\Log::ERR_WARNING, $message);
 				if(\Log\Log::is_verbose()){
 					echo $message;
@@ -52,15 +56,10 @@ class Log {
 	public const ERR_FATAL 				= 'fatal';
 	public const ERR_WARNING 			= 'warning';
 	
-	//	Force ownership on files/dirs to www-data if script is running as root (cronjobs etc.) to avoid ownership is getting mixed
-	private const WWW_USER 				= 'www-data';
-	
 	private const ERR_FATAL_LIMIT_MB 	= 10;
 	private const ERR_WARNING_LIMIT_MB 	= 10;
 	
 	private const DEFAULT_LIMIT_MB 		= 1;
-	
-	private const DEFAULT_TIMEZONE 		= 'Europe/Copenhagen';
 	
 	private const CRLF 					= "\r\n";
 	
@@ -68,6 +67,12 @@ class Log {
 	static private $verbose 			= false;
 	
 	static private $num_errors 			= [];
+	
+	private const SERVER_TIMEZONE 		= 'Europe/Copenhagen';
+	static private $server_time_offset;
+	
+	//	Force ownership on files/dirs to www-data if script is running as root (cronjobs etc.) to avoid ownership is getting mixed
+	private const WWW_USER 				= 'www-data';
 	
 	static public function init(string $path, bool $verbose=false){
 		self::$path = $path;
@@ -224,15 +229,19 @@ class Log {
 	}
 	
 	static private function file_timestamp(): string{
-		return date('Y-m-d-His', self::time_local());
+		return date('Y-m-d-His', self::server_time());
 	}
 	
 	static private function timestamp(): string{
-		return date('Y-m-d H:i:s'.substr((string)microtime(), 1, 4), self::time_local());
+		return date('Y-m-d H:i:s'.substr((string)microtime(), 1, 4), self::server_time());
 	}
 	
-	static private function time_local(): int{
-		return time() + (new \DateTimeZone(self::DEFAULT_TIMEZONE))->getOffset(new \DateTime('now'));
+	static private function server_time(): int{
+		if(!self::$server_time_offset){
+			self::$server_time_offset = (new \DateTimeZone(self::SERVER_TIMEZONE))->getOffset(new \DateTime('now'));
+		}
+		
+		return time() + self::$server_time_offset;
 	}
 }
 
