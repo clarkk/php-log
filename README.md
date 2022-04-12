@@ -1,5 +1,5 @@
 # php-log
-Logging with simple log rotation triggered by a file size limit.
+Logging with simple log rotation triggered by a file size limit. Routes stderr to different log files depending on the level of the error
 - Log rotation (Default 1 MB for `.log` files and 10 MB for `.err` files)
 - All fatal errors and core/compiler/parse errors are automatically logged (even if PHP can't execute the script)
 - All warnings, notice etc. are automatically logged
