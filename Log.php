@@ -56,10 +56,8 @@ class Log {
 	public const ERR_FATAL 				= 'fatal';
 	public const ERR_WARNING 			= 'warning';
 	
-	private const ERR_FATAL_LIMIT_MB 	= 10;
-	private const ERR_WARNING_LIMIT_MB 	= 10;
-	
-	private const DEFAULT_LIMIT_MB 		= 1;
+	private const ERR_LIMIT_MB 			= 10;
+	private const LOG_LIMIT_MB 			= 1;
 	
 	private const CRLF 					= "\r\n";
 	
@@ -89,30 +87,17 @@ class Log {
 		return self::$verbose;
 	}
 	
-	static public function log(string $name, string $message, int $log_limit_mb=self::DEFAULT_LIMIT_MB){
+	static public function log(string $name, string $message, int $log_limit_mb=self::LOG_LIMIT_MB){
 		self::write($name, $message, false, false, $log_limit_mb);
 	}
 	
 	static public function err(string $name, string $message, bool $write_env=true){
-		switch($name){
-			case self::ERR_FATAL:
-				$log_limit_mb 	= self::ERR_FATAL_LIMIT_MB;
-				break;
-			
-			case self::ERR_WARNING:
-				$log_limit_mb 	= self::ERR_WARNING_LIMIT_MB;
-				break;
-			
-			default:
-				$log_limit_mb 	= self::DEFAULT_LIMIT_MB;
-		}
-		
 		if(!isset(self::$num_errors[$name])){
 			self::$num_errors[$name] = 0;
 		}
 		self::$num_errors[$name]++;
 		
-		self::write($name, $message, true, $write_env, $log_limit_mb);
+		self::write($name, $message, true, $write_env, self::ERR_LIMIT_MB);
 	}
 	
 	static public function get_num_errors(string $name=''): int{
