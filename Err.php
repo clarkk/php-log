@@ -3,8 +3,8 @@
 namespace Log;
 
 class Err extends Log {
-	static public function fatal(\Throwable $e, string $name=self::ERR_FATAL): string{
-		$error = self::format($e);
+	static public function fatal(\Throwable $e, string $name=self::ERR_FATAL, string $prefix_error=''): string{
+		$error = ($prefix_error ?: '').self::format($e);
 		if($prev_e = $e->getPrevious()){
 			$error .= "\nPrevious error: ".self::format($prev_e);
 		}
